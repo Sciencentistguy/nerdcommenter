@@ -117,7 +117,7 @@ let g:NERDCreateDefaultMappings = 1
 let g:NERDSpaceDelims = 1
 
 " Use compact syntax for prettified multi-line comments
-let g:NERDCompactSexyComs = 1
+let g:NERDCompactPrettyComs = 1
 
 " Align line-wise comment delimiters flush left instead of following code indentation
 let g:NERDDefaultAlign = 'left'
@@ -166,7 +166,7 @@ Most of the following mappings are for normal/visual mode only. The **|NERDComme
 
     Toggles the comment state of the selected line(s) individually.
 
-  * `[count]<leader>cs` **|NERDCommenterSexy|**
+  * `[count]<leader>cs` **|NERDCommenterPretty|**
 
     Comments out the selected lines with a pretty block formatted layout.
 

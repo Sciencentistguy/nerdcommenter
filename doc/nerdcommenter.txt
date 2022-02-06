@@ -21,7 +21,7 @@ CONTENTS                                               *NERDCommenterContents*
             3.2.3 Toggle comment map..........|NERDCommenterToggle|
             3.2.4 Minimal comment map.........|NERDCommenterMinimal|
             3.2.5 Invert comment map..........|NERDCommenterInvert|
-            3.2.6 Sexy comment map............|NERDCommenterSexy|
+            3.2.6 Pretty comment map............|NERDCommenterPretty|
             3.2.7 Yank comment map............|NERDCommenterYank|
             3.2.8 Comment to EOL map..........|NERDCommenterToEOL|
             3.2.9 Append com to line map......|NERDCommenterAppend|
@@ -30,7 +30,7 @@ CONTENTS                                               *NERDCommenterContents*
             3.2.12 Comment aligned maps.......|NERDCommenterAlignLeft|
                                               |NERDCommenterAlignBoth|
             3.2.13 Uncomment line map.........|NERDCommenterUncomment|
-        3.3 Sexy Comments.....................|NERDCommenterSexyComments|
+        3.3 Pretty Comments.....................|NERDCommenterPrettyComments|
         3.4 The NERDComment function..........|NERDCommenterNERDComment|
         3.5 The Hooks.........................|NERDCommenterHooks|
     4.Options.................................|NERDCommenterOptions|
@@ -122,8 +122,8 @@ Comments the given lines using only one set of multipart delimiters.
 Toggles the comment state of the selected line(s) individually.
 
 
-[count]|<Leader>|cs |NERDCommenterSexy|
-Comments out the selected lines ``sexily''
+[count]|<Leader>|cs |NERDCommenterPretty|
+Comments out the selected lines ``prettily''
 
 
 [count]|<Leader>|cy |NERDCommenterYank|
@@ -258,24 +258,24 @@ If a [count] is given in normal mode, the mapping works as though that many
 lines were selected in visual-line mode.
 
 ------------------------------------------------------------------------------
-3.2.6 Sexy comment map                                     *NERDCommenterSexy*
+3.2.6 Pretty comment map                                     *NERDCommenterPretty*
 
 Default mapping: [count]|<Leader>|cs
-Mapped to: <plug>NERDCommenterSexy
+Mapped to: <plug>NERDCommenterPretty
 Applicable modes: normal, visual-line.
 
-Comments the selected line(s) ``sexily''. See |NERDCommenterSexyComments| for
-a description of what sexy comments are. Can only be done on filetypes for
+Comments the selected line(s) ``prettily''. See |NERDCommenterPrettyComments| for
+a description of what pretty comments are. Can only be done on filetypes for
 which there is at least one set of multipart comment delimiters specified.
 
-Sexy comments cannot be nested and lines inside a sexy comment cannot be
+Pretty comments cannot be nested and lines inside a pretty comment cannot be
 commented again.
 
 If a [count] is given in normal mode, the mapping works as though that many
 lines were selected in visual-line mode.
 
 Related options:
-|'NERDCompactSexyComs'|
+|'NERDCompactPrettyComs'|
 
 ------------------------------------------------------------------------------
 3.2.7 Yank comment map                                     *NERDCommenterYank*
@@ -375,15 +375,15 @@ Related  options:
 |'NERDRemoveExtraSpaces'|
 
 ------------------------------------------------------------------------------
-3.3 Sexy Comments                                  *NERDCommenterSexyComments*
+3.3 Pretty Comments                                  *NERDCommenterPrettyComments*
 These are comments that use one set of multipart comment delimiters as well as
 one other marker symbol. For example: >
     /*
-     * This is a c style sexy comment
+     * This is a c style pretty comment
      * So there!
      */
 
-    /* This is a c style sexy comment
+    /* This is a c style pretty comment
      * So there!
      * But this one is ``compact'' style */
 <
@@ -401,14 +401,14 @@ The arguments to this function are simple:
     - mode: a character indicating the mode in which the comment is requested:
      'n' for Normal mode, 'x' for Visual mode
     - type: is used to specify what type of commenting operation is to be
-      performed, and it can be one of the following: "sexy", "invert",
+      performed, and it can be one of the following: "pretty", "invert",
       "minimal", "toggle", "alignLeft", "alignBoth", "comment", "nested",
       "toEOL", "append", "insert", "uncomment", "yank"
 
 For example, if you typed >
-    :call NERDComment(1, 'sexy')
+    :call NERDComment(1, 'pretty')
 <
-then the script would do a sexy comment on the last visual selection.
+then the script would do a pretty comment on the last visual selection.
 
 ------------------------------------------------------------------------------
 3.5 The hooks                                             *NERDCommenterHooks*
@@ -499,8 +499,8 @@ change the filetype back: >
 |'NERDTrimTrailingWhitespace'|        Specifies if trailing whitespace
                                       should be deleted when uncommenting.
 
-|'NERDCompactSexyComs'|               Specifies whether to use the compact
-                                      style sexy comments.
+|'NERDCompactPrettyComs'|               Specifies whether to use the compact
+                                      style pretty comments.
 
 |'NERDDefaultAlign'|                  Specifies the default alignment to use,
                                       one of 'none', 'left', 'start', or
@@ -794,19 +794,19 @@ NERDRemoveExtraSpaces.  See the note at the bottom of |NERDRemoveExtraSpaces|
 for more details.
 
 ------------------------------------------------------------------------------
-                                                         *'NERDCompactSexyComs'*
+                                                         *'NERDCompactPrettyComs'*
 Values: 0 or 1.
 Default 0.
 
-Some people may want their sexy comments to be like this: >
+Some people may want their pretty comments to be like this: >
     /* Hi There!
-     * This is a sexy comment
+     * This is a pretty comment
      * in c */
 <
 As opposed to like this: >
     /*
      * Hi There!
-     * This is a sexy comment
+     * This is a pretty comment
      * in c
      */
 <
@@ -901,7 +901,7 @@ NERDComment({mode}, {type})                                    *NERDComment()*
               {mode}:       character indicating the mode in which the comment
                             is requested:
                             'n' for Normal mode, 'x' for Visual mode
-              {type}:       the type of commenting requested. Can be 'Sexy', 
+              {type}:       the type of commenting requested. Can be 'Pretty', 
                             'Invert', 'Minimal', 'Toggle', 'AlignLeft', 
                             'AlignBoth', 'Comment', 'Nested', 'ToEOL', 'Append',
                             'Insert', 'Uncomment', 'Yank'

@@ -1,5 +1,8 @@
 # Changelog
 
+### Unreaeased
+* Repalce all instances of the word `sexy` (and its variants) with `pretty`.
+
 ### 2.7.0
 
 * Support for many more filetypes

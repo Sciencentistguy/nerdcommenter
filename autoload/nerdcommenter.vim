@@ -478,7 +478,7 @@ function! nerdcommenter#SetUp() abort
         endfor
     endif
 
-    let b:NERDSexyComMarker = ''
+    let b:NERDPrettyComMarker = ''
 
     if has_key(s:delimiterMap, filetype)
         let b:NERDCommenterDelims = s:delimiterMap[filetype]
@@ -821,21 +821,21 @@ function! s:CommentLinesMinimal(firstLine, lastLine) abort
         throw 'NERDCommenter.Delimiters exception: Minimal comments can only be used for filetypes that have multipart delimiters'
     endif
 
-    let sexyNested = s:SexyNested()
+    let prettyNested = s:PrettyNested()
 
     "if we need to use place holders for the comment, make sure they are
     "enabled for this filetype, or the delimiterss allow nesting
-    if !g:NERDUsePlaceHolders && !sexyNested && s:DoesBlockHaveMultipartDelim(a:firstLine, a:lastLine)
+    if !g:NERDUsePlaceHolders && !prettyNested && s:DoesBlockHaveMultipartDelim(a:firstLine, a:lastLine)
         throw 'NERDCommenter.Settings exception: Place holders are required but disabled.'
     endif
 
     "get the left and right delimiters to smack on
-    let left = s:GetSexyComLeft(g:NERDSpaceDelims,0)
-    let right = s:GetSexyComRight(g:NERDSpaceDelims,0)
+    let left = s:GetPrettyComLeft(g:NERDSpaceDelims,0)
+    let right = s:GetPrettyComRight(g:NERDSpaceDelims,0)
 
     "make sure all multipart delimiters on the lines are replaced with
     "placeholders to prevent illegal syntax
-    if !sexyNested
+    if !prettyNested
         let currentLine = a:firstLine
         while(currentLine <= a:lastLine)
             let theLine = getline(currentLine)
@@ -871,31 +871,31 @@ function! s:CommentLinesMinimal(firstLine, lastLine) abort
     call setline(a:lastLine, theLine)
 endfunction
 
-" Function: s:CommentLinesSexy(topline, bottomline) function
-" This function is used to comment lines in the 'Sexy' style. E.g., in c:
+" Function: s:CommentLinesPretty(topline, bottomline) function
+" This function is used to comment lines in the 'Pretty' style. E.g., in c:
 " /*
-"  * This is a sexy comment
+"  * This is a pretty comment
 "  */
 " Args:
-"   -topline: the line number of the top line in the sexy comment
-"   -bottomline: the line number of the bottom line in the sexy comment
-function! s:CommentLinesSexy(topline, bottomline) abort
-    let left = s:GetSexyComLeft(0, 0)
-    let right = s:GetSexyComRight(0, 0)
+"   -topline: the line number of the top line in the pretty comment
+"   -bottomline: the line number of the bottom line in the pretty comment
+function! s:CommentLinesPretty(topline, bottomline) abort
+    let left = s:GetPrettyComLeft(0, 0)
+    let right = s:GetPrettyComRight(0, 0)
 
-    "check if we can do a sexy comment with the available delimiters
+    "check if we can do a pretty comment with the available delimiters
     if left ==# -1 || right ==# -1
-        throw 'NERDCommenter.Delimiters exception: cannot perform sexy comments with available delimiters.'
+        throw 'NERDCommenter.Delimiters exception: cannot perform pretty comments with available delimiters.'
     endif
 
-    "make sure the lines aren't already commented sexually or we can nest
-    if !s:CanSexyCommentLines(a:topline, a:bottomline)
-        throw 'NERDCommenter.Nesting exception: cannot nest sexy comments'
+    "make sure the lines aren't already commented prettily or we can nest
+    if !s:CanPrettyCommentLines(a:topline, a:bottomline)
+        throw 'NERDCommenter.Nesting exception: cannot nest pretty comments'
     endif
 
 
-    let sexyComMarker = s:GetSexyComMarker(0,0)
-    let sexyComMarkerSpaced = s:GetSexyComMarker(1,0)
+    let prettyComMarker = s:GetPrettyComMarker(0,0)
+    let prettyComMarkerSpaced = s:GetPrettyComMarker(1,0)
 
 
     " we jam the comment as far to the right as possible
@@ -904,7 +904,7 @@ function! s:CommentLinesSexy(topline, bottomline) abort
     "check if we should use the compact style i.e that the left/right
     "delimiters should appear on the first and last lines of the code and not
     "on separate lines above/below the first/last lines of code
-    if g:NERDCompactSexyComs
+    if g:NERDCompactPrettyComs
         let spaceString = (g:NERDSpaceDelims ? s:spaceStr : '')
 
         "comment the top line
@@ -913,7 +913,7 @@ function! s:CommentLinesSexy(topline, bottomline) abort
         if lineHasTabs
             let theLine = s:ConvertLeadingTabsToSpaces(theLine)
         endif
-        if !s:SexyNested()
+        if !s:PrettyNested()
             let theLine = s:SwapOuterMultiPartDelimsForPlaceHolders(theLine)
         endif
         let theLine = s:AddLeftDelimAligned(left . spaceString, theLine, leftAlignIndx)
@@ -929,7 +929,7 @@ function! s:CommentLinesSexy(topline, bottomline) abort
             if lineHasTabs
                 let theLine = s:ConvertLeadingTabsToSpaces(theLine)
             endif
-            if !s:SexyNested()
+            if !s:PrettyNested()
                 let theLine = s:SwapOuterMultiPartDelimsForPlaceHolders(theLine)
             endif
         endif
@@ -958,7 +958,7 @@ function! s:CommentLinesSexy(topline, bottomline) abort
         if g:NERDDisableTabsInBlockComm
           let theLine = repeat(' ', leftAlignIndx) . right
         else
-          let theLine = repeat(' ', leftAlignIndx) . repeat(' ', strlen(left)-strlen(sexyComMarker)) . right
+          let theLine = repeat(' ', leftAlignIndx) . repeat(' ', strlen(left)-strlen(prettyComMarker)) . right
         endif
 
         " Make sure tabs are respected
@@ -969,10 +969,10 @@ function! s:CommentLinesSexy(topline, bottomline) abort
 
     endif
 
-    " go thru each line adding the sexyComMarker marker to the start of each
+    " go thru each line adding the prettyComMarker marker to the start of each
     " line in the appropriate place to align them with the comment delimiters
     let currentLine = a:topline+1
-    while currentLine <= a:bottomline + !g:NERDCompactSexyComs
+    while currentLine <= a:bottomline + !g:NERDCompactPrettyComs
         " get the line and convert the tabs to spaces
         let theLine = getline(currentLine)
         let lineHasTabs = s:HasLeadingTabs(theLine)
@@ -980,15 +980,15 @@ function! s:CommentLinesSexy(topline, bottomline) abort
             let theLine = s:ConvertLeadingTabsToSpaces(theLine)
         endif
 
-        if !s:SexyNested()
+        if !s:PrettyNested()
             let theLine = s:SwapOuterMultiPartDelimsForPlaceHolders(theLine)
         endif
 
-        " add the sexyComMarker
+        " add the prettyComMarker
         if g:NERDDisableTabsInBlockComm
-          let theLine = repeat(' ', leftAlignIndx) . sexyComMarkerSpaced . strpart(theLine, leftAlignIndx)
+          let theLine = repeat(' ', leftAlignIndx) . prettyComMarkerSpaced . strpart(theLine, leftAlignIndx)
         else
-          let theLine = repeat(' ', leftAlignIndx) . repeat(' ', strlen(left)-strlen(sexyComMarker)) . sexyComMarkerSpaced . strpart(theLine, leftAlignIndx)
+          let theLine = repeat(' ', leftAlignIndx) . repeat(' ', strlen(left)-strlen(prettyComMarker)) . prettyComMarkerSpaced . strpart(theLine, leftAlignIndx)
         endif
 
         if lineHasTabs
@@ -1067,9 +1067,9 @@ endfunction
 " This function comments chunks of text selected in visual mode.
 " It will comment exactly the text that they have selected.
 " Args:
-"   -topLine: the line number of the top line in the sexy comment
+"   -topLine: the line number of the top line in the pretty comment
 "   -topCol: top left column for this comment
-"   -bottomline: the line number of the bottom line in the sexy comment
+"   -bottomline: the line number of the bottom line in the pretty comment
 "   -bottomCol: the bottom right column for this comment
 "   -forceNested: whether the caller wants comments to be nested if the
 "    line(s) are already commented
@@ -1128,21 +1128,21 @@ function! s:InvertComment(firstLine, lastLine) abort
     while currentLine <= a:lastLine
         let theLine = getline(currentLine)
 
-        let sexyComBounds = s:FindBoundingLinesOfSexyCom(currentLine)
+        let prettyComBounds = s:FindBoundingLinesOfPrettyCom(currentLine)
 
         " if the line is commented normally, uncomment it
         if s:IsCommentedFromStartOfLine(s:Left(), theLine) || s:IsCommentedFromStartOfLine(s:Left({'alt': 1}), theLine)
             call s:UncommentLines(currentLine, currentLine)
             let currentLine = currentLine + 1
 
-        " check if the line is commented sexually
-        elseif !empty(sexyComBounds)
-            let numLinesBeforeSexyComRemoved = s:NumLinesInBuf()
-            call s:UncommentLinesSexy(sexyComBounds[0], sexyComBounds[1])
+        " check if the line is commented prettily
+        elseif !empty(prettyComBounds)
+            let numLinesBeforePrettyComRemoved = s:NumLinesInBuf()
+            call s:UncommentLinesPretty(prettyComBounds[0], prettyComBounds[1])
 
-            "move to the line after last line of the sexy comment
-            let numLinesAfterSexyComRemoved = s:NumLinesInBuf()
-            let currentLine = sexyComBounds[1] - (numLinesBeforeSexyComRemoved - numLinesAfterSexyComRemoved) + 1
+            "move to the line after last line of the pretty comment
+            let numLinesAfterPrettyComRemoved = s:NumLinesInBuf()
+            let currentLine = prettyComBounds[1] - (numLinesBeforePrettyComRemoved - numLinesAfterPrettyComRemoved) + 1
 
         " the line isn't commented
         else
@@ -1162,7 +1162,7 @@ endfunction
 function! nerdcommenter#IsLineCommented(lineNo) abort
     call nerdcommenter#SetUp()
     let theLine = getline(a:lineNo)
-    return s:IsInSexyComment(a:lineNo) || s:IsCommentedFromStartOfLine(s:Left(), theLine) || s:IsCommentedFromStartOfLine(s:Left({'alt': 1}), theLine)
+    return s:IsInPrettyComment(a:lineNo) || s:IsCommentedFromStartOfLine(s:Left(), theLine) || s:IsCommentedFromStartOfLine(s:Left({'alt': 1}), theLine)
 endfunction
 
 " Function: nerdcommenter#Comment(mode, type) function
@@ -1171,7 +1171,7 @@ endfunction
 " Args:
 "   -mode: a character indicating the mode in which the comment is requested:
 "   'n' for Normal mode, 'x' for Visual mode
-"   -type: the type of commenting requested. Can be 'Sexy', 'Invert',
+"   -type: the type of commenting requested. Can be 'Pretty', 'Invert',
 "    'Minimal', 'Toggle', 'AlignLeft', 'AlignBoth', 'Comment',
 "    'Nested', 'ToEOL', 'Append', 'Insert', 'Uncomment', 'Yank'
 function! nerdcommenter#Comment(mode, type) range abort
@@ -1224,19 +1224,19 @@ function! nerdcommenter#Comment(mode, type) range abort
     elseif a:type ==? 'Invert'
         call s:InvertComment(firstLine, lastLine)
 
-    elseif a:type ==? 'Sexy'
+    elseif a:type ==? 'Pretty'
         try
-            call s:CommentLinesSexy(firstLine, lastLine)
+            call s:CommentLinesPretty(firstLine, lastLine)
         catch /NERDCommenter.Delimiters/
             call s:CommentLines(forceNested, g:NERDDefaultAlign, firstLine, lastLine)
         catch /NERDCommenter.Nesting/
-            call s:NerdEcho('Sexy comment aborted. Nested sexy cannot be nested', 0)
+            call s:NerdEcho('Pretty comment aborted. Nested pretty cannot be nested', 0)
         endtry
 
     elseif a:type ==? 'Toggle'
         if g:NERDToggleCheckAllLines ==# 0
           let theLine = getline(firstLine)
-          if s:IsInSexyComment(firstLine) || s:IsCommentedFromStartOfLine(s:Left(), theLine) || s:IsCommentedFromStartOfLine(s:Left({'alt': 1}), theLine)
+          if s:IsInPrettyComment(firstLine) || s:IsCommentedFromStartOfLine(s:Left(), theLine) || s:IsCommentedFromStartOfLine(s:Left({'alt': 1}), theLine)
               call s:UncommentLines(firstLine, lastLine)
           else
               call s:CommentLinesToggle(forceNested, firstLine, lastLine)
@@ -1246,7 +1246,7 @@ function! nerdcommenter#Comment(mode, type) range abort
           for i in range(firstLine, lastLine)
             let theLine = getline(i)
             " if have one line no comment(not include blank/whitespace-only lines), then comment all lines
-            if theLine =~# '\S\+' && !s:IsInSexyComment(firstLine) && !s:IsCommentedFromStartOfLine(s:Left(), theLine) && !s:IsCommentedFromStartOfLine(s:Left({'alt': 1}), theLine)
+            if theLine =~# '\S\+' && !s:IsInPrettyComment(firstLine) && !s:IsCommentedFromStartOfLine(s:Left(), theLine) && !s:IsCommentedFromStartOfLine(s:Left({'alt': 1}), theLine)
               let l:commentAllLines = 1
               break
             else
@@ -1562,28 +1562,28 @@ function! s:UncommentLines(topLine, bottomLine) abort
         let lastline = a:topLine
     endif
 
-    "go thru each line uncommenting each line removing sexy comments
+    "go thru each line uncommenting each line removing pretty comments
     let currentLine = firstline
     while currentLine <= lastline
 
-        "check the current line to see if it is part of a sexy comment
-        let sexyComBounds = s:FindBoundingLinesOfSexyCom(currentLine)
-        if !empty(sexyComBounds)
+        "check the current line to see if it is part of a pretty comment
+        let prettyComBounds = s:FindBoundingLinesOfPrettyCom(currentLine)
+        if !empty(prettyComBounds)
 
             "we need to store the number of lines in the buffer before the comment is
-            "removed so we know how many lines were removed when the sexy comment
+            "removed so we know how many lines were removed when the pretty comment
             "was removed
-            let numLinesBeforeSexyComRemoved = s:NumLinesInBuf()
+            let numLinesBeforePrettyComRemoved = s:NumLinesInBuf()
 
-            call s:UncommentLinesSexy(sexyComBounds[0], sexyComBounds[1])
+            call s:UncommentLinesPretty(prettyComBounds[0], prettyComBounds[1])
 
-            "move to the line after last line of the sexy comment
-            let numLinesAfterSexyComRemoved = s:NumLinesInBuf()
-            let numLinesRemoved = numLinesBeforeSexyComRemoved - numLinesAfterSexyComRemoved
-            let currentLine = sexyComBounds[1] - numLinesRemoved + 1
+            "move to the line after last line of the pretty comment
+            let numLinesAfterPrettyComRemoved = s:NumLinesInBuf()
+            let numLinesRemoved = numLinesBeforePrettyComRemoved - numLinesAfterPrettyComRemoved
+            let currentLine = prettyComBounds[1] - numLinesRemoved + 1
             let lastline = lastline - numLinesRemoved
 
-        "no sexy com was detected so uncomment the line as normal
+        "no pretty com was detected so uncomment the line as normal
         else
             call s:UncommentLinesNormal(currentLine, currentLine)
             let currentLine = currentLine + 1
@@ -1592,46 +1592,46 @@ function! s:UncommentLines(topLine, bottomLine) abort
 
 endfunction
 
-" Function: s:UncommentLinesSexy(topline, bottomline)
-" This function removes all the comment characters associated with the sexy
+" Function: s:UncommentLinesPretty(topline, bottomline)
+" This function removes all the comment characters associated with the pretty
 " comment spanning the given lines
 " Args:
-"   -topline/bottomline: the top/bottom lines of the sexy comment
-function! s:UncommentLinesSexy(topline, bottomline) abort
-    let left = s:GetSexyComLeft(0,1)
-    let right = s:GetSexyComRight(0,1)
+"   -topline/bottomline: the top/bottom lines of the pretty comment
+function! s:UncommentLinesPretty(topline, bottomline) abort
+    let left = s:GetPrettyComLeft(0,1)
+    let right = s:GetPrettyComRight(0,1)
 
 
-    "check if it is even possible for sexy comments to exist with the
+    "check if it is even possible for pretty comments to exist with the
     "available delimiters
     if left ==# -1 || right ==# -1
-        throw 'NERDCommenter.Delimiters exception: cannot uncomment sexy comments with available delimiters.'
+        throw 'NERDCommenter.Delimiters exception: cannot uncomment pretty comments with available delimiters.'
     endif
 
-    let leftUnEsc = s:GetSexyComLeft(0,0)
-    let rightUnEsc = s:GetSexyComRight(0,0)
+    let leftUnEsc = s:GetPrettyComLeft(0,0)
+    let rightUnEsc = s:GetPrettyComRight(0,0)
 
-    let sexyComMarker = s:GetSexyComMarker(0, 1)
-    let sexyComMarkerUnEsc = s:GetSexyComMarker(0, 0)
+    let prettyComMarker = s:GetPrettyComMarker(0, 1)
+    let prettyComMarkerUnEsc = s:GetPrettyComMarker(0, 0)
 
-    "the markerOffset is how far right we need to move the sexyComMarker to
+    "the markerOffset is how far right we need to move the prettyComMarker to
     "line it up with the end of the left delimiter
-    let markerOffset = strlen(leftUnEsc)-strlen(sexyComMarkerUnEsc)
+    let markerOffset = strlen(leftUnEsc)-strlen(prettyComMarkerUnEsc)
 
-    " go thru the intermediate lines of the sexy comment and remove the
-    " sexy comment markers (e.g., the '*'s on the start of line in a c sexy
+    " go thru the intermediate lines of the pretty comment and remove the
+    " pretty comment markers (e.g., the '*'s on the start of line in a c pretty
     " comment)
     let currentLine = a:topline+1
     while currentLine < a:bottomline
         let theLine = getline(currentLine)
 
-        " remove the sexy comment marker from the line. We also remove the
+        " remove the pretty comment marker from the line. We also remove the
         " space after it if there is one and if appropriate options are set
-        let sexyComMarkerIndx = stridx(theLine, sexyComMarkerUnEsc)
-        if strpart(theLine, sexyComMarkerIndx+strlen(sexyComMarkerUnEsc), s:lenSpaceStr) ==# s:spaceStr  && g:NERDSpaceDelims
-            let theLine = strpart(theLine, 0, sexyComMarkerIndx - markerOffset) . strpart(theLine, sexyComMarkerIndx+strlen(sexyComMarkerUnEsc)+s:lenSpaceStr)
+        let prettyComMarkerIndx = stridx(theLine, prettyComMarkerUnEsc)
+        if strpart(theLine, prettyComMarkerIndx+strlen(prettyComMarkerUnEsc), s:lenSpaceStr) ==# s:spaceStr  && g:NERDSpaceDelims
+            let theLine = strpart(theLine, 0, prettyComMarkerIndx - markerOffset) . strpart(theLine, prettyComMarkerIndx+strlen(prettyComMarkerUnEsc)+s:lenSpaceStr)
         else
-            let theLine = strpart(theLine, 0, sexyComMarkerIndx - markerOffset) . strpart(theLine, sexyComMarkerIndx+strlen(sexyComMarkerUnEsc))
+            let theLine = strpart(theLine, 0, prettyComMarkerIndx - markerOffset) . strpart(theLine, prettyComMarkerIndx+strlen(prettyComMarkerUnEsc))
         endif
 
         let theLine = s:SwapOuterPlaceHoldersForMultiPartDelims(theLine)
@@ -1655,7 +1655,7 @@ function! s:UncommentLinesSexy(topline, bottomline) abort
     let theLine = getline(a:topline)
 
     " if the first line contains only the left delimiter then just delete it
-    if theLine =~# '^\s*' . left . '\s*$' && !g:NERDCompactSexyComs
+    if theLine =~# '^\s*' . left . '\s*$' && !g:NERDCompactPrettyComs
         call cursor(a:topline, 1)
         normal! dd
         let bottomline = bottomline - 1
@@ -1694,17 +1694,17 @@ function! s:UncommentLinesSexy(topline, bottomline) abort
             let theLine = strpart(theLine, 0, delimIndx) . strpart(theLine, delimIndx+strlen(rightUnEsc))
         endif
 
-        " if the last line also starts with a sexy comment marker then we
+        " if the last line also starts with a pretty comment marker then we
         " remove this as well
-        if theLine =~# '^\s*' . sexyComMarker
+        if theLine =~# '^\s*' . prettyComMarker
 
-            " remove the sexyComMarker. If there is a space after it then
+            " remove the prettyComMarker. If there is a space after it then
             " remove that too
-            let sexyComMarkerIndx = stridx(theLine, sexyComMarkerUnEsc)
-            if strpart(theLine, sexyComMarkerIndx+strlen(sexyComMarkerUnEsc), s:lenSpaceStr) ==# s:spaceStr  && g:NERDSpaceDelims
-                let theLine = strpart(theLine, 0, sexyComMarkerIndx - markerOffset ) . strpart(theLine, sexyComMarkerIndx+strlen(sexyComMarkerUnEsc)+s:lenSpaceStr)
+            let prettyComMarkerIndx = stridx(theLine, prettyComMarkerUnEsc)
+            if strpart(theLine, prettyComMarkerIndx+strlen(prettyComMarkerUnEsc), s:lenSpaceStr) ==# s:spaceStr  && g:NERDSpaceDelims
+                let theLine = strpart(theLine, 0, prettyComMarkerIndx - markerOffset ) . strpart(theLine, prettyComMarkerIndx+strlen(prettyComMarkerUnEsc)+s:lenSpaceStr)
             else
-                let theLine = strpart(theLine, 0, sexyComMarkerIndx - markerOffset ) . strpart(theLine, sexyComMarkerIndx+strlen(sexyComMarkerUnEsc))
+                let theLine = strpart(theLine, 0, prettyComMarkerIndx - markerOffset ) . strpart(theLine, prettyComMarkerIndx+strlen(prettyComMarkerUnEsc))
             endif
         endif
 
@@ -1801,7 +1801,7 @@ function! s:UncommentLineNormal(line) abort
 endfunction
 
 " Function: s:UncommentLinesNormal(topline, bottomline)
-" This function is called to uncomment lines that aren't a sexy comment
+" This function is called to uncomment lines that aren't a pretty comment
 " Args:
 "   -topline/bottomline: the top/bottom line numbers of the comment
 function! s:UncommentLinesNormal(topline, bottomline) abort
@@ -1894,12 +1894,12 @@ function! s:CanCommentLine(forceNested, lineNum) abort
         return 0
     endif
 
-    "if the line is part of a sexy comment then just flag it...
-    if s:IsInSexyComment(a:lineNum)
+    "if the line is part of a pretty comment then just flag it...
+    if s:IsInPrettyComment(a:lineNum)
         return 0
     endif
 
-    let isCommented = s:IsCommentedNormOrSexy(a:lineNum)
+    let isCommented = s:IsCommentedNormOrPretty(a:lineNum)
 
     "if the line isn't commented return true
     if !isCommented
@@ -1925,18 +1925,18 @@ function! s:CanPlaceCursor(line, col) abort
     return success
 endfunction
 
-" Function: s:CanSexyCommentLines(topline, bottomline)
-" Return: 1 if the given lines can be commented sexually, 0 otherwise
-function! s:CanSexyCommentLines(topline, bottomline) abort
-    " see if the selected regions have any sexy comments
+" Function: s:CanPrettyCommentLines(topline, bottomline)
+" Return: 1 if the given lines can be commented prettily, 0 otherwise
+function! s:CanPrettyCommentLines(topline, bottomline) abort
+    " see if the selected regions have any pretty comments
     " however, if the language allows nested comments,
-    " we allow nested sexy comments
-    if s:SexyNested()
+    " we allow nested pretty comments
+    if s:PrettyNested()
         return 1
     endif
     let currentLine = a:topline
     while(currentLine <= a:bottomline)
-        if s:IsInSexyComment(currentLine)
+        if s:IsInPrettyComment(currentLine)
             return 0
         endif
         let currentLine = currentLine + 1
@@ -1961,8 +1961,8 @@ function! s:CanToggleCommentLine(forceNested, lineNum) abort
         return 0
     endif
 
-    "if the line is part of a sexy comment then just flag it...
-    if s:IsInSexyComment(a:lineNum)
+    "if the line is part of a pretty comment then just flag it...
+    if s:IsInPrettyComment(a:lineNum)
         return 0
     endif
 
@@ -2141,18 +2141,18 @@ function! s:FindDelimiterIndex(delimiter, line) abort
     return -1
 endfunction
 
-" Function: s:FindBoundingLinesOfSexyCom(lineNum)
+" Function: s:FindBoundingLinesOfPrettyCom(lineNum)
 " This function takes in a line number and tests whether this line number is
-" the top/bottom/middle line of a sexy comment. If it is then the top/bottom
-" lines of the sexy comment are returned
+" the top/bottom/middle line of a pretty comment. If it is then the top/bottom
+" lines of the pretty comment are returned
 " Args:
 "   -lineNum: the line number that is to be tested whether it is the
-"    top/bottom/middle line of a sexy com
+"    top/bottom/middle line of a pretty com
 " Returns:
-"   A string that has the top/bottom lines of the sexy comment encoded in it.
+"   A string that has the top/bottom lines of the pretty comment encoded in it.
 "   The format is 'topline,bottomline'. If a:lineNum turns out not to be the
-"   top/bottom/middle of a sexy comment then -1 is returned
-function! s:FindBoundingLinesOfSexyCom(lineNum) abort
+"   top/bottom/middle of a pretty comment then -1 is returned
+function! s:FindBoundingLinesOfPrettyCom(lineNum) abort
 
     "find which delimiters to look for as the start/end delimiters of the comment
     let left = ''
@@ -2167,9 +2167,9 @@ function! s:FindBoundingLinesOfSexyCom(lineNum) abort
         return []
     endif
 
-    let sexyComMarker = s:GetSexyComMarker(0, 1)
+    let prettyComMarker = s:GetPrettyComMarker(0, 1)
 
-    "initialise the top/bottom line numbers of the sexy comment to -1
+    "initialise the top/bottom line numbers of the pretty comment to -1
     let top = -1
     let bottom = -1
 
@@ -2177,26 +2177,26 @@ function! s:FindBoundingLinesOfSexyCom(lineNum) abort
     while top ==# -1 || bottom ==# -1
         let theLine = getline(currentLine)
 
-        "check if the current line is the top of the sexy comment
+        "check if the current line is the top of the pretty comment
         if currentLine <= a:lineNum && theLine =~# '^\s*' . left && theLine !~# '.*' . right && currentLine < s:NumLinesInBuf()
             let top = currentLine
             let currentLine = a:lineNum
 
-        "check if the current line is the bottom of the sexy comment
+        "check if the current line is the bottom of the pretty comment
         elseif theLine =~# '^\s*' . right && theLine !~# '.*' . left && currentLine > 1
             let bottom = currentLine
 
-        "the right delimiter is on the same line as the last sexyComMarker
-        elseif theLine =~# '^\s*' . sexyComMarker . '.*' . right
+        "the right delimiter is on the same line as the last prettyComMarker
+        elseif theLine =~# '^\s*' . prettyComMarker . '.*' . right
             let bottom = currentLine
 
         "we have not found the top or bottom line so we assume currentLine is an
         "intermediate line and look to prove otherwise
         else
 
-            "if the line doesn't start with a sexyComMarker then it is not a sexy
+            "if the line doesn't start with a prettyComMarker then it is not a pretty
             "comment
-            if theLine !~# '^\s*' . sexyComMarker
+            if theLine !~# '^\s*' . prettyComMarker
                 return []
             endif
 
@@ -2216,10 +2216,10 @@ function! s:FindBoundingLinesOfSexyCom(lineNum) abort
 endfunction
 
 
-" Function: s:GetSexyComMarker()
-" Returns the sexy comment marker for the current filetype.
+" Function: s:GetPrettyComMarker()
+" Returns the pretty comment marker for the current filetype.
 "
-" C style sexy comments are assumed if possible. If not then the sexy comment
+" C style pretty comments are assumed if possible. If not then the pretty comment
 " marker is the last char of the delimiter pair that has both left and right
 " delimiters and has the longest left delimiter
 "
@@ -2227,16 +2227,16 @@ endfunction
 "   -space: specifies whether the marker is to have a space string after it
 "    (the space string will only be added if NERDSpaceDelims is set)
 "   -esc: specifies whether the tricky chars in the marker are to be ESCed
-function! s:GetSexyComMarker(space, esc) abort
-    let sexyComMarker = b:NERDSexyComMarker
+function! s:GetPrettyComMarker(space, esc) abort
+    let prettyComMarker = b:NERDPrettyComMarker
 
     "if there is no hardcoded marker then we find one
-    if sexyComMarker ==# ''
+    if prettyComMarker ==# ''
 
-        "if the filetype has c style comments then use standard c sexy
+        "if the filetype has c style comments then use standard c pretty
         "comments
         if s:HasCStyleComments()
-            let sexyComMarker = '*'
+            let prettyComMarker = '*'
         else
             "find a comment marker by getting the longest available left delimiter
             "(that has a corresponding right delimiter) and taking the last char
@@ -2253,30 +2253,30 @@ function! s:GetSexyComMarker(space, esc) abort
             endif
 
             "get the last char of left
-            let sexyComMarker = strpart(left, strlen(left)-1)
+            let prettyComMarker = strpart(left, strlen(left)-1)
         endif
     endif
 
     if a:space && g:NERDSpaceDelims
-        let sexyComMarker = sexyComMarker . s:spaceStr
+        let prettyComMarker = prettyComMarker . s:spaceStr
     endif
 
     if a:esc
-        let sexyComMarker = s:Esc(sexyComMarker)
+        let prettyComMarker = s:Esc(prettyComMarker)
     endif
 
-    return sexyComMarker
+    return prettyComMarker
 endfunction
 
-" Function: s:SexyNested()
-" Returns 1 if the sexy delimeters allow nesting
-" TODO this is ugly copy&paste from the GetSexyComLeft/Right functions,
+" Function: s:PrettyNested()
+" Returns 1 if the pretty delimeters allow nesting
+" TODO this is ugly copy&paste from the GetPrettyComLeft/Right functions,
 " these could all be cleaned up
-function! s:SexyNested() abort
+function! s:PrettyNested() abort
     let lenLeft = strlen(s:Left())
     let lenLeftAlt = strlen(s:Left({'alt': 1}))
 
-    "assume c style sexy comments if possible
+    "assume c style pretty comments if possible
     if s:HasCStyleComments()
         return (s:Left() ==# '/*' && s:Nested()) || (s:Left({'alt': 1}) ==# '/*' && s:AltNested())
     else
@@ -2291,19 +2291,19 @@ function! s:SexyNested() abort
     endif
 endfunction
 
-" Function: s:GetSexyComLeft(space, esc)
-" Returns the left delimiter for sexy comments for this filetype or -1 if
-" there is none. C style sexy comments are used if possible
+" Function: s:GetPrettyComLeft(space, esc)
+" Returns the left delimiter for pretty comments for this filetype or -1 if
+" there is none. C style pretty comments are used if possible
 " Args:
 "   -space: specifies if the delimiter has a space string on the end
 "   (the space string will only be added if NERDSpaceDelims is set)
 "   -esc: specifies whether the tricky chars in the string are ESCed
-function! s:GetSexyComLeft(space, esc) abort
+function! s:GetPrettyComLeft(space, esc) abort
     let lenLeft = strlen(s:Left())
     let lenLeftAlt = strlen(s:Left({'alt': 1}))
     let left = ''
 
-    "assume c style sexy comments if possible
+    "assume c style pretty comments if possible
     if s:HasCStyleComments()
         let left = '/*'
     else
@@ -2328,20 +2328,20 @@ function! s:GetSexyComLeft(space, esc) abort
     return left
 endfunction
 
-" Function: s:GetSexyComRight(space, esc)
-" Returns the right delimiter for sexy comments for this filetype or -1 if
-" there is none. C style sexy comments are used if possible.
+" Function: s:GetPrettyComRight(space, esc)
+" Returns the right delimiter for pretty comments for this filetype or -1 if
+" there is none. C style pretty comments are used if possible.
 " Args:
 "   -space: specifies if the delimiter has a space string on the start
 "   (the space string will only be added if NERDSpaceDelims
 "   is specified for the current filetype)
 "   -esc: specifies whether the tricky chars in the string are ESCed
-function! s:GetSexyComRight(space, esc) abort
+function! s:GetPrettyComRight(space, esc) abort
     let lenLeft = strlen(s:Left())
     let lenLeftAlt = strlen(s:Left({'alt': 1}))
     let right = ''
 
-    "assume c style sexy comments if possible
+    "assume c style pretty comments if possible
     if s:HasCStyleComments()
         let right = '*/'
     else
@@ -2388,13 +2388,13 @@ function! s:HasCStyleComments() abort
     return (s:Left() ==# '/*' && s:Right() ==# '*/') || (s:Left({'alt': 1}) ==# '/*' && s:Right({'alt': 1}) ==# '*/')
 endfunction
 
-" Function: s:IsCommentedNormOrSexy(lineNum)
+" Function: s:IsCommentedNormOrPretty(lineNum)
 "This function is used to determine whether the given line is commented with
-"either set of delimiters or if it is part of a sexy comment
+"either set of delimiters or if it is part of a pretty comment
 "
 " Args:
 "   -lineNum: the line number of the line to check
-function! s:IsCommentedNormOrSexy(lineNum) abort
+function! s:IsCommentedNormOrPretty(lineNum) abort
     let theLine = getline(a:lineNum)
 
     "if the line is commented normally return 1
@@ -2402,8 +2402,8 @@ function! s:IsCommentedNormOrSexy(lineNum) abort
         return 1
     endif
 
-    "if the line is part of a sexy comment return 1
-    if s:IsInSexyComment(a:lineNum)
+    "if the line is part of a pretty comment return 1
+    if s:IsInPrettyComment(a:lineNum)
         return 1
     endif
     return 0
@@ -2595,21 +2595,21 @@ function! s:IsEscaped(str, indx, escChar) abort
     return !s:IsNumEven(numEscChars)
 endfunction
 
-" Function: s:IsInSexyComment(line)
-" returns 1 if the given line number is part of a sexy comment
-function! s:IsInSexyComment(line) abort
-    return !empty(s:FindBoundingLinesOfSexyCom(a:line))
+" Function: s:IsInPrettyComment(line)
+" returns 1 if the given line number is part of a pretty comment
+function! s:IsInPrettyComment(line) abort
+    return !empty(s:FindBoundingLinesOfPrettyCom(a:line))
 endfunction
 
-" Function: s:IsSexyComment(topline, bottomline)
+" Function: s:IsPrettyComment(topline, bottomline)
 " This function takes in 2 line numbers and returns 1 if the lines between and
-" including the given line numbers are a sexy comment. It returns 0 otherwise.
+" including the given line numbers are a pretty comment. It returns 0 otherwise.
 " Args:
-"   -topline: the line that the possible sexy comment starts on
-"   -bottomline: the line that the possible sexy comment stops on
-function! s:IsSexyComment(topline, bottomline) abort
+"   -topline: the line that the possible pretty comment starts on
+"   -bottomline: the line that the possible pretty comment stops on
+function! s:IsPrettyComment(topline, bottomline) abort
 
-    "get the delimiter set that would be used for a sexy comment
+    "get the delimiter set that would be used for a pretty comment
     let left = ''
     let right = ''
     if s:Multipart()
@@ -2630,46 +2630,46 @@ function! s:IsSexyComment(topline, bottomline) abort
         let bottomline = a:topline
     endif
 
-    "if there is < 2 lines in the comment it cannot be sexy
+    "if there is < 2 lines in the comment it cannot be pretty
     if (bottomline - topline) <= 0
         return 0
     endif
 
-    "if the top line doesn't begin with a left delimiter then the comment isn't sexy
+    "if the top line doesn't begin with a left delimiter then the comment isn't pretty
     if getline(a:topline) !~# '^\s*' . left
         return 0
     endif
 
-    "if there is a right delimiter on the top line then this isn't a sexy comment
+    "if there is a right delimiter on the top line then this isn't a pretty comment
     if s:LastIndexOfDelim(right, getline(a:topline)) !=# -1
         return 0
     endif
 
-    "if there is a left delimiter on the bottom line then this isn't a sexy comment
+    "if there is a left delimiter on the bottom line then this isn't a pretty comment
     if s:FindDelimiterIndex(left, getline(a:bottomline)) !=# -1
         return 0
     endif
 
     "if the bottom line doesn't begin with a right delimiter then the comment isn't
-    "sexy
+    "pretty
     if getline(a:bottomline) !~# '^.*' . right . '$'
         return 0
     endif
 
-    let sexyComMarker = s:GetSexyComMarker(0, 1)
+    let prettyComMarker = s:GetPrettyComMarker(0, 1)
 
     "check each of the intermediate lines to make sure they start with a
-    "sexyComMarker
+    "prettyComMarker
     let currentLine = a:topline+1
     while currentLine < a:bottomline
         let theLine = getline(currentLine)
 
-        if theLine !~# '^\s*' . sexyComMarker
+        if theLine !~# '^\s*' . prettyComMarker
             return 0
         endif
 
         "if there is a right delimiter in an intermediate line then the block isn't
-        "a sexy comment
+        "a pretty comment
         if s:LastIndexOfDelim(right, theLine) !=# -1
             return 0
         endif
@@ -2677,7 +2677,7 @@ function! s:IsSexyComment(topline, bottomline) abort
         let currentLine = currentLine + 1
     endwhile
 
-    "we have not found anything to suggest that this isn't a sexy comment so
+    "we have not found anything to suggest that this isn't a pretty comment so
     return 1
 
 endfunction
